@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Nhật Anh Chat</title>
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -50,7 +51,10 @@
       --maxw: 960px;
     }
 
-    * { box-sizing: border-box; }
+    * { 
+      box-sizing: border-box; 
+      -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+    }
 
     body {
       margin: 0;
@@ -108,6 +112,9 @@
       border-radius: 999px;
       outline: none;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      touch-action: manipulation; /* Optimize touch response */
+      -webkit-appearance: none; /* Remove iOS styling */
+      appearance: none;
     }
     #messageInput::placeholder { color: var(--muted); }
     #messageInput:focus {
@@ -127,6 +134,10 @@
       letter-spacing: 0.2px;
       transition: transform 0.08s ease, box-shadow 0.2s ease, opacity 0.2s ease;
       box-shadow: 0 8px 22px rgba(0, 194, 255, 0.25);
+      touch-action: manipulation; /* Optimize touch response */
+      -webkit-touch-callout: none; /* Disable callout on iOS */
+      -webkit-user-select: none; /* Disable text selection */
+      user-select: none;
     }
     button:hover { transform: translateY(-1px); }
     button:active { transform: translateY(0); opacity: 0.9; }
@@ -218,6 +229,11 @@
       font-size: 16px;
       margin-bottom: 20px;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      touch-action: manipulation; /* Optimize touch response */
+      -webkit-appearance: none; /* Remove iOS styling */
+      appearance: none;
+      -moz-appearance: none;
+      appearance: none;
     }
     select:focus {
       border-color: rgba(0,194,255,0.45);
@@ -273,6 +289,9 @@
       font-size: 16px;
       margin-bottom: 16px;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      touch-action: manipulation; /* Optimize touch response */
+      -webkit-appearance: none; /* Remove iOS styling */
+      appearance: none;
     }
     #passwordInput::placeholder { color: var(--muted); }
     #passwordInput:focus {
@@ -295,10 +314,110 @@
     #chatBox::-webkit-scrollbar-track { background: transparent; }
 
     /* Responsive tweaks */
-    @media (max-width: 640px) {
-      #chatBox { margin: 8px auto; padding: 14px 10px 18px; border-radius: 12px; }
-      .message { max-width: 86%; }
-      #messageForm { margin: 0 8px 16px; padding: 12px; }
+    @media (max-width: 768px) {
+      body { padding: 0; }
+      
+      #appBarInner { padding: 10px 12px; }
+      #appTitle { font-size: 1.1rem; }
+      
+      #chatBox { 
+        margin: 4px; 
+        padding: 12px 8px 16px; 
+        border-radius: 8px;
+        max-width: none;
+        width: calc(100% - 8px);
+      }
+      
+      .message { max-width: 90%; }
+      
+      #messageForm { 
+        margin: 0 4px 8px; 
+        padding: 10px; 
+        max-width: none;
+        width: calc(100% - 8px);
+      }
+      
+      #messageInput {
+        padding: 12px 14px;
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+      
+      button {
+        padding: 10px 16px;
+        font-size: 14px;
+      }
+      
+      .avatar {
+        width: 32px; 
+        height: 32px; 
+        flex: 0 0 32px;
+      }
+      
+      .bubble {
+        padding: 10px 12px;
+        font-size: 15px;
+      }
+      
+      .message .name {
+        font-size: 11px;
+        margin: 0 4px 4px;
+      }
+      
+      /* Popup adjustments */
+      #popupContent, #passwordContent {
+        margin: 16px;
+        padding: 24px;
+        max-width: none;
+        width: calc(100% - 32px);
+      }
+      
+      #popupContent h3, #passwordContent h3 {
+        font-size: 1.3rem;
+        margin-bottom: 16px;
+      }
+      
+      select, #passwordInput {
+        padding: 12px 14px;
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+      
+      #popupContent button, #passwordContent button {
+        padding: 12px 18px;
+        font-size: 15px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      #chatBox { 
+        margin: 2px; 
+        padding: 10px 6px 14px; 
+        width: calc(100% - 4px);
+      }
+      
+      #messageForm { 
+        margin: 0 2px 6px; 
+        padding: 8px; 
+        width: calc(100% - 4px);
+      }
+      
+      .message { max-width: 95%; }
+      
+      .avatar {
+        width: 28px; 
+        height: 28px; 
+        flex: 0 0 28px;
+      }
+      
+      .bubble {
+        padding: 8px 10px;
+        font-size: 14px;
+      }
+      
+      #popupContent, #passwordContent {
+        margin: 12px;
+        padding: 20px;
+        width: calc(100% - 24px);
+      }
     }
 
     /* Top app bar */
