@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>Group Chat</title>
+  <title>Nhật Anh Chat</title>
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -314,11 +314,11 @@
   <!-- Popup nhập mật khẩu (hiển thị trước) -->
   <div id="passwordPopup">
     <div id="passwordContent">
-      <h3>Nhập mật khẩu để vào</h3>
-      <p>Vui lòng nhập mật khẩu truy cập</p>
+      <h3>Chào mừng đến với Nhật Anh chat 😎</h3>
+      <p>Phải nhập pass mới vô được 👇</p>
       <form onsubmit="submitPassword(event)">
         <input id="passwordInput" type="password" placeholder="Nhập mật khẩu" autocomplete="off" />
-        <button type="submit">Tiếp tục</button>
+        <button type="submit">Vào</button>
       </form>
     </div>
   </div>
@@ -326,7 +326,7 @@
   <!-- Popup chọn tên -->
   <div id="popup">
     <div id="popupContent">
-      <h3>Chọn tên để vào chat</h3>
+      <h3>Chọn tên của bạn 😁😁</h3>
       <select id="nameSelect">
         <option value="">--Chọn tên--</option>
         <option>Nhật Anh ( admin ) </option>
@@ -336,7 +336,7 @@
         <option>Thy</option>
       </select>
       <br><br>
-      <button onclick="enterChat()">Vào chat</button>
+      <button onclick="enterChat()">Vào chat thôi</button>
     </div>
   </div>
 
@@ -372,8 +372,7 @@
     let currentUser = "";
     const ACCESS_PASSWORD = "0209";
     const avatarMap = {
-      "Nhật Anh": "/icons/nhatanh.png",
-      "Nhật Anh ( admin )": "/icons/nhatanh.png",
+      "Nhật Anh": "https://ff.text2.click/icons/nhatanh.png",
       "Ngọc Hân": "https://ff.text2.click/icons/han.png",
       "Minh": "https://ff.text2.click/icons/minh.png",
       "Ken": "https://ff.text2.click/icons/ken.png",
