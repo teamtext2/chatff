@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Group Chat</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    #chatBox {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      background: rgba(255,255,255,0.05);
+    }
+    #messageForm {
+      display: flex;
+      padding: 10px;
+      background: rgba(0,0,0,0.5);
+    }
+    #messageInput {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+    }
+    button {
+      margin-left: 10px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #00bcd4;
+      color: white;
+      font-weight: bold;
+    }
+    /* Popup */
+    #popup {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #popupContent {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    select {
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Popup chọn tên -->
+  <div id="popup">
+    <div id="popupContent">
+      <h3>Chọn tên để vào chat</h3>
+      <select id="nameSelect">
+        <option value="">--Chọn tên--</option>
+        <option>Nhật Anh</option>
+        <option>Ngọc Hân</option>
+        <option>Minh</option>
+        <option>Ken</option>
+        <option>Thy</option>
+      </select>
+      <br><br>
+      <button onclick="enterChat()">Vào chat</button>
+    </div>
+  </div>
+
+  <!-- Khu vực chat -->
+  <div id="chatBox"></div>
+  <form id="messageForm" onsubmit="sendMessage(event)">
+    <input id="messageInput" placeholder="Nhập tin nhắn..." autocomplete="off" />
+    <button type="submit">Gửi</button>
+  </form>
+
+  <!-- Firebase + App Chat -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB3_KJi1R80OXRVN0S2pzMfP4FG593hKV4",
+      authDomain: "text2-hoa-nhat-anh-app-chat.firebaseapp.com",
+      databaseURL: "https://text2-hoa-nhat-anh-app-chat-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "text2-hoa-nhat-anh-app-chat",
+      storageBucket: "text2-hoa-nhat-anh-app-chat.firebasestorage.app",
+      messagingSenderId: "188131651183",
+      appId: "1:188131651183:web:c01d6aaa48f8c26e5da79a",
+      measurementId: "G-KLKZPPD47X"
+    };
+
+    // Khởi tạo Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let currentUser = "";
+
+    // Hàm chọn tên
+    window.enterChat = function() {
+      const select = document.getElementById("nameSelect");
+      if (select.value !== "") {
+        currentUser = select.value;
+        document.getElementById("popup").style.display = "none";
+      } else {
+        alert("Hãy chọn tên trước khi vào!");
+      }
+    };
+
+    // Hàm gửi tin nhắn
+    window.sendMessage = function(e) {
+      e.preventDefault();
+      const input = document.getElementById("messageInput");
+      if (input.value.trim() !== "" && currentUser) {
+        push(ref(db, "messages"), {
+          name: currentUser,
+          text: input.value
+        });
+        input.value = "";
+      }
+    };
+
+    // Nhận tin nhắn realtime
+    const chatBox = document.getElementById("chatBox");
+    onChildAdded(ref(db, "messages"), (snapshot) => {
+      const msg = snapshot.val();
+      const div = document.createElement("div");
+      div.textContent = msg.name + ": " + msg.text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight; // Auto scroll xuống cuối
+    });
+  </script>
+</body>
+</html>
