@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <title>Group Chat</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0b0f14" />
+  <link rel="manifest" href="manifest.webmanifest" />
   <style>
     :root {
       --bg: #0b0f14;
@@ -109,6 +115,20 @@
     .message.theirs { align-self: flex-start; }
     .message .name { font-size: 12px; color: var(--muted); margin: 0 6px 6px; }
     .message.mine .name { text-align: right; }
+    .msgRow { display: flex; align-items: flex-end; gap: 10px; }
+    .message.mine .msgRow { flex-direction: row-reverse; }
+    .msgCol { display: flex; flex-direction: column; }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%; flex: 0 0 36px;
+      background: linear-gradient(135deg, rgba(0,194,255,0.15), rgba(255,255,255,0.06));
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      overflow: hidden;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 700; color: var(--text);
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .avatar .initials { font-size: 12px; letter-spacing: 0.3px; opacity: 0.9; }
     .bubble {
       padding: 12px 14px;
       border-radius: var(--radius-sm);
@@ -189,6 +209,61 @@
       font-weight: 700;
     }
 
+    /* Password popup (overlays above name popup) */
+    #passwordPopup {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 12, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      backdrop-filter: blur(10px);
+      z-index: 10000;
+    }
+    #passwordContent {
+      background: linear-gradient(180deg, rgba(17,24,39,0.97), rgba(17,24,39,0.92));
+      padding: 32px;
+      border-radius: 20px;
+      text-align: center;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+      border: 1px solid rgba(0,194,255,0.22);
+      animation: popupSlideIn 0.3s ease-out;
+    }
+    #passwordContent h3 {
+      margin-top: 0;
+      font-weight: 800;
+      color: var(--primary);
+      font-size: 1.6rem;
+      margin-bottom: 16px;
+    }
+    #passwordContent p { margin: 0 0 16px; color: var(--muted); }
+    #passwordInput {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+      outline: none;
+      font-size: 16px;
+      margin-bottom: 16px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    #passwordInput::placeholder { color: var(--muted); }
+    #passwordInput:focus {
+      border-color: rgba(0,194,255,0.45);
+      box-shadow: 0 0 0 4px rgba(0,194,255,0.12);
+    }
+    #passwordContent button {
+      width: 100%;
+      padding: 14px 20px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
     /* Scrollbar styling */
     #chatBox::-webkit-scrollbar { width: 10px; }
     #chatBox::-webkit-scrollbar-thumb {
@@ -203,16 +278,39 @@
       .message { max-width: 86%; }
       #messageForm { margin: 0 8px 16px; padding: 12px; }
     }
+
+    /* PWA install button */
+    #pwaInstall {
+      position: fixed; right: 16px; bottom: 96px; z-index: 9998;
+      display: none; align-items: center; gap: 8px;
+      padding: 10px 14px; border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-600));
+      color: #fff; border: none; cursor: pointer; font-weight: 700;
+      box-shadow: 0 10px 24px rgba(0,194,255,0.28);
+    }
+    #pwaInstall:hover { transform: translateY(-1px); }
   </style>
 </head>
 <body>
+  <!-- Popup nhập mật khẩu (hiển thị trước) -->
+  <div id="passwordPopup">
+    <div id="passwordContent">
+      <h3>Nhập mật khẩu để vào</h3>
+      <p>Vui lòng nhập mật khẩu truy cập</p>
+      <form onsubmit="submitPassword(event)">
+        <input id="passwordInput" type="password" placeholder="Nhập mật khẩu" autocomplete="off" />
+        <button type="submit">Tiếp tục</button>
+      </form>
+    </div>
+  </div>
+
   <!-- Popup chọn tên -->
   <div id="popup">
     <div id="popupContent">
       <h3>Chọn tên để vào chat</h3>
       <select id="nameSelect">
         <option value="">--Chọn tên--</option>
-        <option>Nhật Anh</option>
+        <option>Nhật Anh ( admin ) </option>
         <option>Ngọc Hân</option>
         <option>Minh</option>
         <option>Ken</option>
@@ -229,6 +327,9 @@
     <input id="messageInput" placeholder="Nhập tin nhắn..." autocomplete="off" />
     <button type="submit">Gửi</button>
   </form>
+
+  <!-- PWA install button -->
+  <button id="pwaInstall">Cài PWA</button>
 
   <!-- Firebase + App Chat -->
   <script type="module">
@@ -251,6 +352,14 @@
     const db = getDatabase(app);
 
     let currentUser = "";
+    const ACCESS_PASSWORD = "0209";
+    const avatarMap = {
+      "Nhật Anh": "/icons/nhatanh.png",
+      "Ngọc Hân": "https://ff.text2.click/icons/han.png",
+      "Minh": "https://ff.text2.click/icons/minh.png",
+      "Ken": "https://ff.text2.click/icons/ken.png",
+      "Thy": "https://ff.text2.click/icons/thy.png"
+    };
 
     // Hàm chọn tên
     window.enterChat = function() {
@@ -260,6 +369,24 @@
         document.getElementById("popup").style.display = "none";
       } else {
         alert("Hãy chọn tên trước khi vào!");
+      }
+    };
+
+    // Xác thực mật khẩu trước khi vào popup tên
+    window.submitPassword = function(e) {
+      e.preventDefault();
+      const input = document.getElementById("passwordInput");
+      const value = (input.value || "").trim();
+      if (value === ACCESS_PASSWORD) {
+        document.getElementById("passwordPopup").style.display = "none";
+        setTimeout(() => {
+          const nameSelect = document.getElementById("nameSelect");
+          if (nameSelect) { nameSelect.focus(); }
+        }, 50);
+      } else {
+        input.value = "";
+        input.focus();
+        alert("Mật khẩu không đúng. Vui lòng thử lại.");
       }
     };
 
@@ -278,11 +405,41 @@
 
     // Nhận tin nhắn realtime
     const chatBox = document.getElementById("chatBox");
+    function createAvatar(name) {
+      const wrap = document.createElement("div");
+      wrap.className = "avatar";
+      const src = avatarMap[name] || "#";
+      if (src && src !== "#") {
+        const img = document.createElement("img");
+        img.src = src;
+        wrap.appendChild(img);
+      } else {
+        const initials = (name || "?")
+          .split(/\s+/)
+          .map(p => p[0])
+          .join("")
+          .substring(0, 2)
+          .toUpperCase();
+        const span = document.createElement("span");
+        span.className = "initials";
+        span.textContent = initials || "?";
+        wrap.appendChild(span);
+      }
+      return wrap;
+    }
     onChildAdded(ref(db, "messages"), (snapshot) => {
       const msg = snapshot.val();
       const wrapper = document.createElement("div");
       const isMine = msg.name === currentUser;
       wrapper.className = "message " + (isMine ? "mine" : "theirs");
+
+      const row = document.createElement("div");
+      row.className = "msgRow";
+
+      const avatarEl = createAvatar(msg.name);
+
+      const col = document.createElement("div");
+      col.className = "msgCol";
 
       const nameEl = document.createElement("div");
       nameEl.className = "name";
@@ -292,11 +449,39 @@
       bubble.className = "bubble";
       bubble.textContent = msg.text;
 
-      wrapper.appendChild(nameEl);
-      wrapper.appendChild(bubble);
+      col.appendChild(nameEl);
+      col.appendChild(bubble);
+      row.appendChild(avatarEl);
+      row.appendChild(col);
+      wrapper.appendChild(row);
       chatBox.appendChild(wrapper);
-      chatBox.scrollTop = chatBox.scrollHeight; // Auto scroll xuống cuối
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+    // PWA: service worker + install prompt
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('pwaInstall');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'inline-flex';
+    });
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      try {
+        await deferredPrompt.userChoice;
+      } finally {
+        installBtn.style.display = 'none';
+        deferredPrompt = null;
+      }
     });
   </script>
 </body>
-</html>
+</html> 
