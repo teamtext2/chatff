@@ -279,19 +279,38 @@
       #messageForm { margin: 0 8px 16px; padding: 12px; }
     }
 
-    /* PWA install button */
+    /* Top app bar */
+    #appBar {
+      position: sticky; top: 0; z-index: 100;
+      width: 100%;
+      background: rgba(11,15,20,0.7);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    #appBarInner {
+      max-width: var(--maxw);
+      margin: 0 auto; padding: 12px 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    #appTitle { font-weight: 800; letter-spacing: 0.2px; }
     #pwaInstall {
-      position: fixed; right: 16px; bottom: 96px; z-index: 9998;
       display: none; align-items: center; gap: 8px;
-      padding: 10px 14px; border-radius: 999px;
+      padding: 8px 12px; border-radius: 999px;
       background: linear-gradient(135deg, var(--primary), var(--primary-600));
       color: #fff; border: none; cursor: pointer; font-weight: 700;
-      box-shadow: 0 10px 24px rgba(0,194,255,0.28);
+      box-shadow: 0 8px 18px rgba(0,194,255,0.25);
     }
     #pwaInstall:hover { transform: translateY(-1px); }
   </style>
 </head>
 <body>
+  <!-- App bar with install button -->
+  <div id="appBar">
+    <div id="appBarInner">
+      <div id="appTitle">Group Chat</div>
+      <button id="pwaInstall">Cài app</button>
+    </div>
+  </div>
   <!-- Popup nhập mật khẩu (hiển thị trước) -->
   <div id="passwordPopup">
     <div id="passwordContent">
@@ -328,8 +347,7 @@
     <button type="submit">Gửi</button>
   </form>
 
-  <!-- PWA install button -->
-  <button id="pwaInstall">Cài PWA</button>
+  
 
   <!-- Firebase + App Chat -->
   <script type="module">
@@ -355,6 +373,7 @@
     const ACCESS_PASSWORD = "0209";
     const avatarMap = {
       "Nhật Anh": "/icons/nhatanh.png",
+      "Nhật Anh ( admin )": "/icons/nhatanh.png",
       "Ngọc Hân": "https://ff.text2.click/icons/han.png",
       "Minh": "https://ff.text2.click/icons/minh.png",
       "Ken": "https://ff.text2.click/icons/ken.png",
@@ -481,6 +500,9 @@
         installBtn.style.display = 'none';
         deferredPrompt = null;
       }
+    });
+    window.addEventListener('appinstalled', () => {
+      installBtn.style.display = 'none';
     });
   </script>
 </body>
